@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard สรุปผลการอบรม (v4.6 Report Edition)</title>
+    <title>Dashboard สรุปผลการอบรม (v4.7 Force Real-Time)</title>
     
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -68,7 +68,7 @@
             #reportHeader h1 { font-size: 24pt; color: #1e293b; font-weight: bold; }
             #reportHeader p { font-size: 12pt; color: #475569; }
 
-            .grid { display: block !important; } /* Stack charts for better printing */
+            .grid { display: block !important; } 
             .card { width: 100% !important; }
             canvas { max-height: 280px !important; width: 100% !important; margin: 0 auto; }
             
@@ -88,7 +88,7 @@
 
     <div id="loadingOverlay" class="fixed inset-0 bg-white/90 backdrop-blur-sm z-[60] hidden flex items-center justify-center flex-col">
         <div class="loader mb-4"></div>
-        <p class="text-lg font-bold text-slate-700">กำลังเชื่อมต่อข้อมูล...</p>
+        <p class="text-lg font-bold text-slate-700">กำลังดึงข้อมูลล่าสุด...</p>
     </div>
 
     <div class="flex h-screen overflow-hidden">
@@ -100,7 +100,7 @@
                         <i class="fa-solid fa-file-contract text-2xl"></i>
                     </div>
                     <h2 class="text-lg font-bold text-white tracking-wide">HR Analytics</h2>
-                    <p class="text-[10px] text-blue-400 uppercase tracking-widest mt-1">v4.6 Report Pro</p>
+                    <p class="text-[10px] text-blue-400 uppercase tracking-widest mt-1">v4.7 Real-Time</p>
                 </div>
             </div>
             
@@ -118,7 +118,7 @@
 
                 <div class="pt-6 pb-2 px-2 text-xs font-bold text-slate-500 uppercase tracking-wider">จัดการข้อมูล</div>
                 <button onclick="connectToSheet(true)" class="w-full flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-blue-900/20 text-slate-300 transition-colors group">
-                    <i class="fa-solid fa-rotate w-5"></i> <span class="text-sm">รีเฟรช Google Sheet</span>
+                    <i class="fa-solid fa-rotate w-5"></i> <span class="text-sm">รีเฟรชข้อมูล (Sync)</span>
                 </button>
                 <label for="fileInput" class="flex items-center gap-3 px-4 py-3 rounded-xl hover:bg-slate-800 cursor-pointer transition-colors text-slate-400">
                     <i class="fa-solid fa-file-import w-5"></i> <span class="text-sm">อัปโหลดไฟล์เอง</span>
@@ -132,7 +132,7 @@
 
             <div class="p-4 bg-slate-950 border-t border-slate-800 flex justify-between items-center text-[10px]">
                 <span id="connectionStatus"><span class="status-dot status-offline"></span> Offline</span>
-                <span class="opacity-50">v4.6</span>
+                <span class="opacity-50">v4.7</span>
             </div>
         </aside>
 
@@ -146,16 +146,24 @@
 
             <header class="bg-white/90 backdrop-blur-md sticky top-0 z-40 px-8 py-4 flex justify-between items-center border-b border-slate-200 shadow-sm no-print">
                 <div>
-                    <h1 class="text-2xl font-bold text-slate-800">สรุปผลการอบรมพนักงาน</h1>
+                    <h1 class="text-2xl font-bold text-slate-800 flex items-center gap-2">
+                        สรุปผลการอบรมพนักงาน
+                        <span id="liveBadge" class="hidden px-2 py-0.5 rounded-full bg-green-100 text-green-700 text-[10px] font-bold uppercase tracking-wide border border-green-200 animate-pulse">
+                            Live Sync
+                        </span>
+                    </h1>
                     <p class="text-sm text-slate-500 mt-1 flex items-center gap-2">
-                        <i class="fa-solid fa-filter"></i> เลือกช่วงวันที่เพื่อสรุปรายงาน
+                        <i class="fa-regular fa-clock"></i> อัปเดตล่าสุด: <span id="lastUpdateText" class="font-medium text-slate-700">กำลังเชื่อมต่อ...</span>
                     </p>
                 </div>
                 <div class="flex gap-3">
-                    <button onclick="saveHTML()" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2 rounded-lg text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-floppy-disk"></i> บันทึกไฟล์
+                    <button onclick="connectToSheet(true)" class="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg shadow-lg shadow-blue-200 transition text-sm font-bold flex items-center gap-2 transform active:scale-95 group">
+                        <i class="fa-solid fa-rotate group-hover:animate-spin"></i> รีเฟรช (Sync)
                     </button>
-                    <button onclick="prepareReport()" class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow-lg shadow-blue-200 text-sm font-bold flex items-center gap-2 transform active:scale-95">
+                    <button onclick="saveHTML()" class="bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 px-4 py-2.5 rounded-lg shadow-sm transition text-sm font-medium flex items-center gap-2">
+                        <i class="fa-solid fa-floppy-disk"></i> บันทึกไฟล์ HTML
+                    </button>
+                    <button onclick="prepareReport()" class="bg-emerald-600 hover:bg-emerald-700 text-white px-5 py-2.5 rounded-lg shadow-lg shadow-emerald-200 transition text-sm font-bold flex items-center gap-2 transform active:scale-95 group">
                         <i class="fa-solid fa-file-pdf"></i> พิมพ์/ส่งรายงาน
                     </button>
                 </div>
@@ -197,7 +205,7 @@
 
                 <section class="card p-6 bg-blue-50 border-blue-200 no-print">
                     <label class="block text-sm font-bold text-blue-800 mb-2 uppercase">บทสรุปเพิ่มเติมสำหรับหัวหน้างาน (พิมพ์สรุปสั้นๆ ตรงนี้ก่อนกดส่ง)</label>
-                    <textarea id="reportSummaryInput" rows="2" class="w-full p-3 bg-white border border-blue-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" placeholder="ตัวอย่าง: สรุปผลการอบรมเดือนกุมภาพันธ์ พบว่าอัตราการผ่านเพิ่มขึ้น 5% เมื่อเทียบกับเดือนมกราคม..."></textarea>
+                    <textarea id="reportSummaryInput" rows="2" class="w-full p-3 bg-white border border-blue-200 rounded-lg text-sm focus:ring-2 focus:ring-blue-500" placeholder="ตัวอย่าง: สรุปผลการอบรมเดือนนี้ พบว่าพนักงานเข้าเรียนครบตามเป้าหมาย..."></textarea>
                 </section>
 
                 <section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
@@ -273,13 +281,12 @@
 
     <script>
         // --- 1. Variables & Config ---
-        const EMBEDDED_SHEET_URL = "https://docs.google.com/spreadsheets/d/1ebYm__Gpefv0fbDHs31Hf0YZeyXy_by3iaHV8MsosHY/edit?usp=sharing";
         const SHEET_ID = "1ebYm__Gpefv0fbDHs31Hf0YZeyXy_by3iaHV8MsosHY";
 
         let allData = [];
         let filteredData = [];
         let dropReasons = {}; 
-        const STORAGE_KEY_REASONS = 'dropReasons_v45';
+        const STORAGE_KEY_REASONS = 'dropReasons_v47'; // Key ใหม่ ป้องกันการชนกับตัวเก่า
         const charts = {};
         const colors = { blue: '#3b82f6', green: '#10b981', red: '#ef4444', orange: '#f97316', teal: '#14b8a6', indigo: '#6366f1', gray: '#94a3b8' };
 
@@ -288,11 +295,16 @@
             const savedReasons = localStorage.getItem(STORAGE_KEY_REASONS);
             if(savedReasons) dropReasons = JSON.parse(savedReasons);
 
-            if(window.snapshot) {
-                if(window.snapshot.reasons) dropReasons = window.snapshot.reasons;
+            // เมื่อโหลดหน้าเว็บ ไม่ว่าจะมาจากไฟล์ HTML ที่เซฟไว้ หรือเพิ่งเปิดใหม่ 
+            // ระบบจะบังคับให้ดึงข้อมูลจาก Google Sheet เสมอ!
+            if(window.snapshot && window.snapshot.reasons) {
+                dropReasons = window.snapshot.reasons;
+                // แสดงข้อมูล snapshot พลางๆ ระหว่างรอโหลด
                 if(window.snapshot.csv) Papa.parse(window.snapshot.csv, { header: true, complete: (res) => processData(res.data) });
+                // ดึงข้อมูลใหม่มาทับทันที!
+                setTimeout(() => { connectToSheet(false); }, 500); 
             } else {
-                connectToSheet(false);
+                connectToSheet(true);
             }
 
             document.getElementById('teamFilter').addEventListener('change', applyFilters);
@@ -302,7 +314,7 @@
             document.getElementById('fileInput').addEventListener('change', handleFileUpload);
         });
 
-        // --- 3. Google Sheet Logic ---
+        // --- 3. Google Sheet Logic (FORCE CACHE BUSTER) ---
         function connectToSheet(showUI = true) {
             if(showUI) showLoading(true);
             updateUrlDisplay(SHEET_ID);
@@ -316,13 +328,26 @@
                 if(json && json.table && json.table.rows) {
                     const parsed = parseGvizData(json);
                     processData(parsed);
-                    if(showUI) Swal.fire({ icon: 'success', title: 'สำเร็จ', text: `โหลดข้อมูล ${parsed.length} รายการ`, timer: 1500, showConfirmButton: false });
+                    
+                    // Update Time
+                    const now = new Date();
+                    document.getElementById('lastUpdateText').innerText = now.toLocaleTimeString('th-TH');
+
+                    if(showUI && typeof Swal !== 'undefined') Swal.fire({ icon: 'success', title: 'ดึงข้อมูลสำเร็จ', text: `โหลดข้อมูลอัปเดตล่าสุด ${parsed.length} รายการ`, timer: 1500, showConfirmButton: false });
                 }
             };
 
             const script = document.createElement('script');
             script.id = scriptId;
-            script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:googleSheetCallback&gid=0`;
+            // *** เคล็ดลับเจาะแคช: เติม new Date().getTime() เพื่อให้ลิงก์ไม่ซ้ำกัน ดึงข้อมูลสดเสมอ ***
+            script.src = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=responseHandler:googleSheetCallback&gid=0&_cacheBuster=${new Date().getTime()}`;
+            
+            script.onerror = function() {
+                if(showUI) {
+                    showLoading(false);
+                    if(typeof Swal !== 'undefined') Swal.fire('ข้อผิดพลาด','ไม่สามารถเชื่อมต่อ Google Sheet ได้ (โปรดตรวจสอบอินเทอร์เน็ต)','error');
+                }
+            };
             document.body.appendChild(script);
         }
 
@@ -355,12 +380,16 @@
             const end = document.getElementById('endDateFilter').value;
             
             if(!start || !end) {
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'กรุณาเลือกช่วงวันที่',
-                    text: 'กรุณาเลือกวันที่เริ่มต้นและวันที่สิ้นสุดก่อนสร้างรายงาน เพื่อให้ได้ข้อมูลสรุปรายเดือนที่ถูกต้อง',
-                    confirmButtonColor: '#3085d6'
-                });
+                if(typeof Swal !== 'undefined') {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'กรุณาเลือกช่วงวันที่',
+                        text: 'กรุณาเลือกตั้งแต่วันที่ และ ถึงวันที่ (เช่น 01/02/2026 - 28/02/2026) เพื่อสรุปรายงาน',
+                        confirmButtonColor: '#3085d6'
+                    });
+                } else {
+                    alert('กรุณาเลือกช่วงวันที่ (ตั้งแต่วันที่ และ ถึงวันที่) ก่อนสั่งพิมพ์รายงาน');
+                }
                 return;
             }
 
@@ -371,13 +400,8 @@
             };
             document.getElementById('reportDateRange').innerText = `${formatThai(start)} ถึง ${formatThai(end)}`;
             
-            // Focus visual update
             window.scrollTo({ top: 0, behavior: 'smooth' });
-            
-            // Trigger browser print
-            setTimeout(() => {
-                window.print();
-            }, 500);
+            setTimeout(() => { window.print(); }, 500);
         }
 
         // --- 5. Data & Logic Helpers ---
